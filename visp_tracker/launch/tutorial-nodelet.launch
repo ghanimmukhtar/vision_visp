@@ -18,16 +18,26 @@
 
   <!-- Play the video sequence, publish the clock topic to preserve
        the original timestamps. -->
-  <node pkg="rosbag" type="play" name="rosbag" args="--clock -l
-        $(find visp_tracker)/bag/tutorial-static-box.bag"/>
+  <!--node pkg="rosbag" type="play" name="rosbag" args="-r-clock -l
+        $(find visp_tracker)/bag/tutorial-static-box.bag"/-->
+
+  <!--include file="$(find freenect_launch)/launch/freenect.launch">
+    <arg name="rgb_frame_id" value="camera_rgb_optical_frame"/>
+    <arg name="depth_frame_id" value="camera_depth_optical_frame"/>
+  </include-->
+
+  <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch"/>
 
   <!-- nodelet manager process -->
-  <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" />
+  <!--node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen"  launch-prefix="gdb -ex run -r-arg"/-->
+  <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen"  />
 
   <!-- Launch the tracking node -->
-  <node pkg="nodelet" type="nodelet" name="tracker"
+  <node pkg="nodelet" type="nodelet" name="tracker" output="screen" 
         args="load visp_tracker/Tracker $(arg manager)">
-    <param name="camera_prefix" value="/wide_left/camera" />
+    <!--param name="camera_prefix" value="/camera/rgb" /-->
+    <param name="camera_prefix" value="/kinect2/qhd" />
+    <!--param name="camera_prefix" value="/wide_left/camera" /-->
   </node>
 
   <!-- Launch the client (GUI).
@@ -43,15 +53,20 @@
        See http://ros.org/wiki/resource_retriever
 
     -->
-  <node pkg="nodelet" type="nodelet" name="visp_tracker_client"
+  <node pkg="nodelet" type="nodelet" name="visp_tracker_client" output="screen"
         args="load visp_tracker/TrackerClient $(arg manager)">
     <param name="model_path" value="package://visp_tracker/models" />
-    <param name="model_name" value="laas-box" />
+    <param name="tracker_type" value="mbt" />
+    <param name="model_name" value="teabox" />
+    <!--param name="model_name" value="dream-box" /-->
+    <!--param name="model_name" value="laas-box" /-->
 
     <!-- Load recommended settings for tracking initialization. They
       will be automatically forwarded to the tracking node if the
       initialization succeed. -->
-    <rosparam file="$(find visp_tracker)/models/laas-box/tracker.yaml" />
+    <rosparam file="$(find visp_tracker)/models/teabox/tracker.yaml" />
+    <!--rosparam file="$(find visp_tracker)/models/dream-box/tracker.yaml" /-->
+    <!--rosparam file="$(find visp_tracker)/models/laas-box/tracker.yaml" /-->
   </node>
 
   <!-- Launch the viewer (GUI)
@@ -62,6 +77,6 @@
        ~image_transport parameter to do so, see the image_transport
        package documentation for more information.
   -->
-  <node pkg="nodelet" type="nodelet" name="visp_tracker_viewer"
+  <node pkg="nodelet" type="nodelet" name="visp_tracker_viewer" output="screen" 
         args="load visp_tracker/TrackerViewer $(arg manager)" />
 </launch>

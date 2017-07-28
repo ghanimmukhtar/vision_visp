@@ -11,18 +11,31 @@
 <launch>
   <!-- Play the video sequence, publish the clock topic to preserve
        the original timestamps. -->
-  <node pkg="rosbag" type="play" name="play" args="--clock -l
-  $(find visp_auto_tracker)/bag/tutorial-qrcode.bag"/>
+  <!--node pkg="rosbag" type="play" name="play" args="-r-clock -l
+  $(find visp_auto_tracker)/bag/tutorial-qrcode.bag"/-->
+
+  <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch"/>
+
+  <!--include file="$(find freenect_launch)/launch/freenect.launch">
+    <arg name="rgb_frame_id" value="camera_rgb_optical_frame"/>
+    <arg name="depth_frame_id" value="camera_depth_optical_frame"/>
+  </include-->
 
   <!-- Launch the tracking node -->
-  <node pkg="visp_auto_tracker" type="visp_auto_tracker" name="visp_auto_tracker" output="screen">
+  <node pkg="visp_auto_tracker" type="visp_auto_tracker" name="visp_auto_tracker" output="screen" launch-prefix="gdb -ex run --args">
     <param name="model_path" value="$(find visp_auto_tracker)/models" />
     <param name="model_name" value="pattern" />
     <param name="debug_display" value="True" />
     <!-- param name="code_message" value="Ver1" / -->
     
-    <remap from="/visp_auto_tracker/camera_info" to="/camera/camera_info"/>
-    <remap from="/visp_auto_tracker/image_raw" to="/camera/image_raw"/>
+    <!--remap from="/visp_auto_tracker/camera_info" to="/camera/camera_info"/>
+    <remap from="/visp_auto_tracker/image_raw" to="/camera/image_raw"/-->
+
+    <!--remap from="/visp_auto_tracker/camera_info" to="/camera/rgb/camera_info"/>
+    <remap from="/visp_auto_tracker/image_raw" to="/camera/rgb/image_rect_color"/-->
+
+    <remap from="/visp_auto_tracker/camera_info" to="/kinect2/qhd/camera_info"/>
+    <remap from="/visp_auto_tracker/image_raw" to="/kinect2/qhd/image_color_rect"/>
   </node>
 
   <!-- Launch the viewer -->

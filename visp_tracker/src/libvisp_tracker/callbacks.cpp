@@ -17,13 +17,14 @@ void imageCallback(vpImage<unsigned char>& image,
 		   const sensor_msgs::Image::ConstPtr& msg,
 		   const sensor_msgs::CameraInfoConstPtr& info)
 {
+    //ROS_INFO("Image Callback, trying to process the kinect image");
   try
     {
       rosImageToVisp(image, msg);
     }
   catch(std::exception& e)
     {
-      ROS_ERROR_STREAM("dropping frame: " << e.what());
+      ROS_ERROR_STREAM("dropping frame in image callback: " << e.what());
     }
 }
 
@@ -49,6 +50,7 @@ bindImageCallback(vpImage<unsigned char>& image,
 		  std_msgs::Header& header,
 		  sensor_msgs::CameraInfoConstPtr& info)
 {
+    ROS_ERROR_STREAM("Received camera info stuff: " << info);
   return boost::bind
     (imageCallback,
      boost::ref(image), boost::ref(header), boost::ref(info), _1, _2);
